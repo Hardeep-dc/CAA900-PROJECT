@@ -1,1 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceInsightPro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        input[type="submit"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .details {
+            display: none;
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PriceInsightPro</h1>
+        <h2>Amazon.ca Product Prediction Website</h2>
+        <form id="searchForm">
+            <input type="text" id="query" name="query" placeholder="Enter product ASIN or title..." required>
+            <input type="submit" value="Search">
+        </form>
+        <div id="results"></div>
+    </div>
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const query = document.getElementById('query').value
+ const response = await fetch(`/api/search?query=${query}`);
+            const product = await response.json();
+            let resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
 
+            if (product.error) {
+                resultsDiv.innerHTML = '<p>No product information found.</p>';
+            } else {
+                let table = `<table>
+                    <tr>
+                        <th>Title</th>
+                        <th>ASIN</th>
+                        <th>Price</th>
+                        <th>Total Reviews</th>
+                        <th>Rating</th>
+                        <th>Prediction</th>
+                    </tr>`;
+                table += `<tr>
+                    <td>${product.title}</td>
+                    <td>${product.asin}</td>
+                    <td>${product.latest_price}</td>
+                    <td>${product.total_reviews}</td>
+                    <td>${product.rating}</td>
+                    <td><button onclick="predictPrice('${product.asin}')">Predict Price</button></td>
+                </tr>
+                <tr id="details-${product.asin}" class="details">
+                    <td colspan="6">Loading details...</td>
+                </tr>`;
+                table += `</table>`;
+                resultsDiv.innerHTML = table;
+            }
+        });
+
+        async function predictPrice(asin) {
+            const detailsRow = document.getElementById(`details-${asin}`);
+            const detailsCell = detailsRow.querySelector('td');
+            detailsRow.style.display = 'table-row';
+            detailsCell.innerHTML = 'Loading prediction...';
+
+            const response = await fetch(`/api/predict?asin=${asin}`);
+            const prediction = await response.json();
+            if (prediction.error) {
+                detailsCell.innerHTML = `<p>Error: ${prediction.error}</p>`;
+            } else {
+                detailsCell.innerHTML = `
+                    <p>Current Price: ${prediction.current_price}</p>
+                    <p>Future Price (30 days): ${prediction.future_price_30_days}</p>
+                    <p>Recommendation: ${prediction.recommendation}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
