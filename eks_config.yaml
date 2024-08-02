@@ -1,0 +1,36 @@
+---
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: caa900
+  region: "us-east-1"
+
+iam:
+  serviceRoleARN: arn:aws:iam::735577740957:role/LabRole
+
+vpc:
+  id: vpc-0fcc4c75444f06b57 
+  subnets:
+    private:
+      us-east-1a: { cidr: "10.0.3.0/24" }
+      us-east-1b: { cidr: "10.0.4.0/24" }
+    public:
+      us-east-1a: { cidr: "10.0.1.0/24" }
+      us-east-1b: { cidr: "10.0.2.0/24" }
+
+managedNodeGroups:
+  - name: nodegroup
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    privateNetworking: true
+    ssh:
+      enableSsm: true
+    iam:
+      instanceRoleARN: arn:aws:iam::735577740957:role/LabRole
+
+cloudWatch:
+  clusterLogging:
+    enableTypes: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
