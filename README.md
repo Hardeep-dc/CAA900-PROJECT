@@ -1,5 +1,5 @@
 # CAA900-PROJECT
-AMAZON Product Future Prediction
+AMAZON Product Future Price Prediction
 
 Developed Using:
 1) AWS Cloud Architecture.
