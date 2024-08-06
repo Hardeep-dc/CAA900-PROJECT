@@ -1,0 +1,13 @@
+numpy
+pandas
+convertdate
+LunarCalendar
+ephem
+holidays
+setuptools-git
+pystan
+flask
+requests
+boto3
+matplotlib
+scikit-learn
